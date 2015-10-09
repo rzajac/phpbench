@@ -20,32 +20,74 @@ namespace Kicaj\Bench;
 use Exception;
 use Kicaj\Tools\Cli\Colors;
 
+/**
+ * Benchmarking class
+ *
+ * @package Kicaj\Bench
+ */
 class Bench
 {
+    /**
+     * The number of iterations
+     *
+     * @var int
+     */
     protected $iterations;
+
+    /**
+     * Benchmarks.
+     *
+     * @var callable[]
+     */
     protected $benchmarks = [];
-    protected $summary;
+
+    /**
+     * The benchmark summary.
+     *
+     * @var array
+     */
+    protected $summary = [];
+
+    /**
+     * The longest benchmark name.
+     *
+     * Used to align results in summary.
+     *
+     * @var int
+     */
     protected $longestName = 0;
 
+    /**
+     * Constructor.
+     *
+     * @param int $iterations The number of iterations
+     */
     private function __construct($iterations)
     {
         $this->iterations = $iterations;
     }
 
+    /**
+     * Make.
+     *
+     * @param int $iterations The number of iterations
+     *
+     * @return Bench
+     */
     public static function make($iterations)
     {
         return new static($iterations);
     }
 
     /**
-     * @param $name
-     * @param $callback
+     * @param string $name
+     * @param callable $callback
      *
      * @return Bench
      *
      * @throws Exception
      */
-    public function addBenchmark($name, $callback)
+    public function addBenchmark($name, callable $callback)
     {
         if (isset($this->benchmarks[$name])) {
             throw new Exception('Benchmark '.$name.' already exists.');
@@ -56,6 +98,12 @@ class Bench
         return $this;
     }
 
+    /**
+     * Run benchmark.
+     *
+     * @throws BenchEx
+     * @return $this
+     */
     public function run()
     {
         foreach ($this->benchmarks as $name => $benchmark) {
@@ -68,6 +116,11 @@ class Bench
         return $this;
     }
 
+    /**
+     * Create benchmark summary.
+     *
+     * @throws BenchEx
+     */
     protected function summary()
     {
         $fastest = array('name' => '', 'value' => PHP_INT_MAX);
@@ -112,9 +165,16 @@ class Bench
         uasort($this->summary, array($this, 'cmp'));
     }
 
+    /**
+     * Return printable summary
+     *
+     * @return string
+     */
     public function printSummary()
     {
+        $msg = '';
         $format = 'Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
+
         foreach ($this->summary as $name => $summary) {
             $execution_actual = number_format($summary['execution'], 6);
             $execution_perc = number_format($summary['to_fastest'] * 100, 2);
@@ -129,10 +189,20 @@ class Bench
             $per_sec = $summary['per_sec'] === 'unknown' ? 'unknown' : number_format($summary['per_sec'], 0, '.', ' ');
 
             $msg = sprintf($format, $name, $execution_perc, $execution_actual, $memory_perc, $memory_actual, $per_sec);
-            echo $msg."\n";
+            $msg .= "\n";
         }
+
+        return $msg;
     }
 
+    /**
+     * Compare summaries.
+     *
+     * @param array $a The summary array
+     * @param array $b The summary array
+     *
+     * @return int
+     */
     public function cmp($a, $b)
     {
         if ($a['execution'] == $b['execution']) {
