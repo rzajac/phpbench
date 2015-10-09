@@ -21,14 +21,12 @@ use Exception;
 use Kicaj\Tools\Cli\Colors;
 
 /**
- * Benchmarking class
- *
- * @package Kicaj\Bench
+ * Benchmarking class.
  */
 class Bench
 {
     /**
-     * The number of iterations
+     * The number of iterations.
      *
      * @var int
      */
@@ -40,6 +38,13 @@ class Bench
      * @var callable[]
      */
     protected $benchmarks = [];
+
+    /**
+     * The timer.
+     *
+     * @var Timer
+     */
+    protected $timer;
 
     /**
      * The benchmark summary.
@@ -65,6 +70,7 @@ class Bench
     private function __construct($iterations)
     {
         $this->iterations = $iterations;
+        $this->timer = Timer::make();
     }
 
     /**
@@ -80,7 +86,7 @@ class Bench
     }
 
     /**
-     * @param string $name
+     * @param string   $name
      * @param callable $callback
      *
      * @return Bench
@@ -90,7 +96,7 @@ class Bench
     public function addBenchmark($name, callable $callback)
     {
         if (isset($this->benchmarks[$name])) {
-            throw new Exception('Benchmark '.$name.' already exists.');
+            throw new Exception('benchmark "'.$name.'" already exists');
         }
 
         $this->benchmarks[$name] = $callback;
@@ -102,14 +108,15 @@ class Bench
      * Run benchmark.
      *
      * @throws BenchEx
-     * @return $this
+     *
+     * @return Bench
      */
     public function run()
     {
         foreach ($this->benchmarks as $name => $benchmark) {
-            Benchmark::start($name);
+            $this->timer->start($name);
             $benchmark($this->iterations);
-            Benchmark::stop($name);
+            $this->timer->stop($name);
         }
         $this->summary();
 
@@ -126,13 +133,12 @@ class Bench
         $fastest = array('name' => '', 'value' => PHP_INT_MAX);
         $leastMemory = array('name' => '', 'value' => PHP_INT_MAX);
 
-        $summary = Benchmark::get(true, 6);
-
-        $ourSummary = array();
+        $summary = $this->timer->getAll();
+        $ourSummary = [];
 
         // Find fastest and least memory consuming one
         foreach ($summary as $name => $values) {
-            $summary[$name]['time'] = floatval($values['time']);
+            $summary[$name]['time'] = $values['time'];
 
             if ($fastest['value'] > $values['time']) {
                 $fastest['name'] = $name;
@@ -149,16 +155,11 @@ class Bench
 
         foreach ($summary as $name => $value) {
             $ourSummary[$name] = array();
-            $ourSummary[$name]['execution'] = $value['time'];
+            $ourSummary[$name]['time'] = $value['time'];
             $ourSummary[$name]['memory'] = $value['memory'];
             $ourSummary[$name]['to_fastest'] = $value['time'] / $fastest['value'];
             $ourSummary[$name]['to_least_memory'] = $value['memory'] / $leastMemory['value'];
-
-            if ($value['executions'] !== 0) {
-                $ourSummary[$name]['per_sec'] = ceil($value['executions'] / $value['time']);
-            } else {
-                $ourSummary[$name]['per_sec'] = 'unknown';
-            }
+            $ourSummary[$name]['per_sec'] = ceil($this->iterations / $value['time']);
         }
 
         $this->summary = $ourSummary;
@@ -166,7 +167,7 @@ class Bench
     }
 
     /**
-     * Return printable summary
+     * Return printable summary.
      *
      * @return string
      */
@@ -176,11 +177,11 @@ class Bench
         $format = 'Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
 
         foreach ($this->summary as $name => $summary) {
-            $execution_actual = number_format($summary['execution'], 6);
-            $execution_perc = number_format($summary['to_fastest'] * 100, 2);
+            $executionActual = number_format($summary['time'], 6);
+            $executionPerc = number_format($summary['to_fastest'] * 100, 2);
 
-            $memory_actual = $summary['memory'];
-            $memory_perc = number_format($summary['to_least_memory'] * 100, 2);
+            $memoryActual = $summary['memory'];
+            $memoryPerc = number_format($summary['to_least_memory'] * 100, 2);
 
             $name = str_pad($name, $this->longestName, ' ', STR_PAD_LEFT);
 
@@ -188,7 +189,7 @@ class Bench
 
             $per_sec = $summary['per_sec'] === 'unknown' ? 'unknown' : number_format($summary['per_sec'], 0, '.', ' ');
 
-            $msg = sprintf($format, $name, $execution_perc, $execution_actual, $memory_perc, $memory_actual, $per_sec);
+            $msg .= sprintf($format, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
             $msg .= "\n";
         }
 
@@ -205,10 +206,10 @@ class Bench
      */
     public function cmp($a, $b)
     {
-        if ($a['execution'] == $b['execution']) {
+        if ($a['time'] == $b['time']) {
             return 0;
         }
 
-        return ($a['execution'] < $b['execution']) ? -1 : 1;
+        return ($a['time'] < $b['time']) ? -1 : 1;
     }
 }
