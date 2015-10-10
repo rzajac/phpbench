@@ -21,6 +21,8 @@ use Exception;
 
 /**
  * Benchmarking class.
+ *
+ * @package Kicaj\Bench
  */
 class Bench
 {

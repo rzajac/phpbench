@@ -19,6 +19,8 @@ namespace Kicaj\Bench\Printer;
 
 /**
  * Abstract benchmark summary printer.
+ *
+ * @package Kicaj\Bench\Printer
  */
 abstract class Printer
 {

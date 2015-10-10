@@ -31,7 +31,7 @@ class Csv extends Printer
      */
     protected function summaryToStr()
     {
-        $msg = "BenchmarkName,Benchmark,Execution Percent,Execution Seconds,Memory Percent,Memory Bytes,Operations Per Second\n";
+        $msg = "Name,Case,Execution Percent,Execution Seconds,Memory Percent,Memory Bytes,Operations Per Second\n";
 
         $format = '%s,%s,%s,%s,%s,%s,%s';
 

@@ -49,7 +49,7 @@ $benchmarks['direct'] = function ($iterations) use ($a) {
     }
 };
 
-$benchmarks['b_cached'] = function ($iterations) use ($a) {
+$benchmarks['cached'] = function ($iterations) use ($a) {
     for ($i = 0; $i < $iterations; ++$i) {
         $value = $a->doSomethingC('Poland', 'Polish');
 

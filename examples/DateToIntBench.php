@@ -18,7 +18,7 @@ $benchmarks['str_replace_array'] = function ($iterations) use ($date_time) {
     }
 };
 
-$benchmarks['b_substr'] = function ($iterations) use ($date_time) {
+$benchmarks['substr'] = function ($iterations) use ($date_time) {
     for ($i = 0; $i < $iterations; ++$i) {
         $_date = substr($date_time, 0, 4);
         $_date .= substr($date_time, 5, 2);
@@ -31,7 +31,7 @@ $benchmarks['b_substr'] = function ($iterations) use ($date_time) {
     }
 };
 
-$benchmarks['b_preg'] = function ($iterations) use ($date_time) {
+$benchmarks['preg'] = function ($iterations) use ($date_time) {
     for ($i = 0; $i < $iterations; ++$i) {
         $_date = (int) preg_replace('/[^0-9]/', '', $date_time);
     }

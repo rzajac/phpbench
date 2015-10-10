@@ -22,6 +22,8 @@ use SplFileInfo;
 
 /**
  * Class for running benchmarks from command line.
+ *
+ * @package Kicaj\Bench
  */
 class CliBench
 {
@@ -33,11 +35,11 @@ class CliBench
     protected $argv = [];
 
     /**
-     * Path to file or directory.
+     * File or directory iterator.
      *
-     * @var string
+     * @var \Iterator
      */
-    protected $fileOrDir = '';
+    protected $it;
 
     /**
      * Constructor.
@@ -54,24 +56,36 @@ class CliBench
             throw new BenchEx('please provide file or directory to bench');
         }
 
-        $this->fileOrDir = $this->argv[1];
+        if (is_dir($this->argv[1])) {
+            $this->it = new \RecursiveDirectoryIterator($this->argv[1]);
+        } else {
+            $this->it = [new SplFileInfo($this->argv[1])];
+        }
     }
 
+    /**
+     * Make.
+     *
+     * @param array $argv The command line arguments
+     *
+     * @return static
+     */
     public static function make(array $argv)
     {
         return new static($argv);
     }
 
+    /**
+     * Run benchmarks.
+     *
+     * @throws \Exception
+     */
     public function run()
     {
-        if (is_dir($this->fileOrDir)) {
-            $it = new \RecursiveDirectoryIterator($this->fileOrDir);
-        } else {
-            $it = [new SplFileInfo($this->fileOrDir)];
-        }
+        $msg = '';
 
         /** @var SplFileInfo $file */
-        foreach ($it as $file) {
+        foreach ($this->it as $file) {
             if ($file->getExtension() != 'php') {
                 continue;
             }
@@ -93,7 +107,9 @@ class CliBench
 
             $printer = new Csv($file->getFilename(), $bench->getSummary());
 
-            echo $printer . "\n";
+            $msg .= $printer . "\n";
         }
+
+        return $msg;
     }
 }
