@@ -17,6 +17,7 @@
  */
 namespace Kicaj\Bench;
 
+use Kicaj\Bench\Printer\Csv;
 use SplFileInfo;
 
 /**
@@ -38,6 +39,13 @@ class CliBench
      */
     protected $fileOrDir = '';
 
+    /**
+     * Constructor.
+     *
+     * @param array $argv The command line arguments
+     *
+     * @throws BenchEx
+     */
     public function __construct(array $argv)
     {
         $this->argv = $argv;
@@ -56,7 +64,11 @@ class CliBench
 
     public function run()
     {
-        $it = new \RecursiveDirectoryIterator($this->fileOrDir);
+        if (is_dir($this->fileOrDir)) {
+            $it = new \RecursiveDirectoryIterator($this->fileOrDir);
+        } else {
+            $it = [new SplFileInfo($this->fileOrDir)];
+        }
 
         /** @var SplFileInfo $file */
         foreach ($it as $file) {
@@ -77,8 +89,11 @@ class CliBench
                 $bench->addBenchmark($bName, $b);
             }
 
-            echo $bench->run()->printSummary();
-            echo "---------------------\n";
+            $bench->run();
+
+            $printer = new Csv($file->getFilename(), $bench->getSummary());
+
+            echo $printer . "\n";
         }
     }
 }

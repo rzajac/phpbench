@@ -18,7 +18,6 @@
 namespace Kicaj\Bench;
 
 use Exception;
-use Kicaj\Tools\Cli\Colors;
 
 /**
  * Benchmarking class.
@@ -49,18 +48,20 @@ class Bench
     /**
      * The benchmark summary.
      *
+     * Array where keys are benchmark names and values
+     * are summary arrays.
+     *
+     * Summary array has following key values:
+     *
+     * time - the time it took to run the benchmark,
+     * memory - the memory difference between benchmark start and stop,
+     * to_fastest - speed ratio in percents,
+     * to_least_memory - memory ratio in percent,
+     * per_sec - number of operations per second for given benchmark
+     *
      * @var array
      */
     protected $summary = [];
-
-    /**
-     * The longest benchmark name.
-     *
-     * Used to align results in summary.
-     *
-     * @var int
-     */
-    protected $longestName = 0;
 
     /**
      * Constructor.
@@ -118,9 +119,19 @@ class Bench
             $benchmark($this->iterations);
             $this->timer->stop($name);
         }
-        $this->summary();
+        $this->createSummary();
 
         return $this;
+    }
+
+    /**
+     * Get benchmark summary.
+     *
+     * @return array
+     */
+    public function getSummary()
+    {
+        return $this->summary;
     }
 
     /**
@@ -128,10 +139,10 @@ class Bench
      *
      * @throws BenchEx
      */
-    protected function summary()
+    protected function createSummary()
     {
-        $fastest = array('name' => '', 'value' => PHP_INT_MAX);
-        $leastMemory = array('name' => '', 'value' => PHP_INT_MAX);
+        $fastest = ['name' => '', 'value' => PHP_INT_MAX];
+        $leastMemory = ['name' => '', 'value' => PHP_INT_MAX];
 
         $summary = $this->timer->getAll();
         $ourSummary = [];
@@ -149,51 +160,20 @@ class Bench
                 $leastMemory['name'] = $name;
                 $leastMemory['value'] = $values['memory'];
             }
-
-            $this->longestName = max($this->longestName, strlen($name));
         }
 
         foreach ($summary as $name => $value) {
-            $ourSummary[$name] = array();
-            $ourSummary[$name]['time'] = $value['time'];
-            $ourSummary[$name]['memory'] = $value['memory'];
-            $ourSummary[$name]['to_fastest'] = $value['time'] / $fastest['value'];
-            $ourSummary[$name]['to_least_memory'] = $value['memory'] / $leastMemory['value'];
-            $ourSummary[$name]['per_sec'] = ceil($this->iterations / $value['time']);
+            $ourSummary[$name] = [
+                'time' => $value['time'],
+                'memory' => $value['memory'],
+                'to_fastest' => $value['time'] / $fastest['value'],
+                'to_least_memory' => $value['memory'] / $leastMemory['value'],
+                'per_sec' => ceil($this->iterations / $value['time']),
+            ];
         }
 
         $this->summary = $ourSummary;
-        uasort($this->summary, array($this, 'cmp'));
-    }
-
-    /**
-     * Return printable summary.
-     *
-     * @return string
-     */
-    public function printSummary()
-    {
-        $msg = '';
-        $format = 'Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
-
-        foreach ($this->summary as $name => $summary) {
-            $executionActual = number_format($summary['time'], 6);
-            $executionPerc = number_format($summary['to_fastest'] * 100, 2);
-
-            $memoryActual = $summary['memory'];
-            $memoryPerc = number_format($summary['to_least_memory'] * 100, 2);
-
-            $name = str_pad($name, $this->longestName, ' ', STR_PAD_LEFT);
-
-            $name = Colors::getColoredString($name, 'blue');
-
-            $per_sec = $summary['per_sec'] === 'unknown' ? 'unknown' : number_format($summary['per_sec'], 0, '.', ' ');
-
-            $msg .= sprintf($format, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
-            $msg .= "\n";
-        }
-
-        return $msg;
+        uasort($this->summary, [$this, 'cmp']);
     }
 
     /**
@@ -204,7 +184,7 @@ class Bench
      *
      * @return int
      */
-    public function cmp($a, $b)
+    protected function cmp($a, $b)
     {
         if ($a['time'] == $b['time']) {
             return 0;

@@ -14,7 +14,7 @@ $benchmarks['isset'] = function ($iterations) use ($exampleArr) {
     }
 };
 
-$benchmarks['b_array_key_exists'] = function ($iterations) use ($exampleArr) {
+$benchmarks['array_key_exists'] = function ($iterations) use ($exampleArr) {
     for ($i = 0; $i < $iterations; ++$i) {
         if (array_key_exists('value4', $exampleArr)) {
             // exists
