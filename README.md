@@ -30,3 +30,21 @@ Run benchmarks from specific file:
 ```
 $ phpbench -f ./examples/ArrayKeyExistsBench.php
 ```
+
+## Installation
+
+Composer install:
+
+```json
+{
+    "require": {
+        "rzajac/phpbench": "~0.5"
+    }
+}
+```
+
+Composer globally:
+
+```
+$ ./composer.phar global require rzajac/phpbench
+```
