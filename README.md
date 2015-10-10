@@ -25,6 +25,8 @@ Run all benchmarks in examples directory:
 $ phpbench -d ./examples
 ```
 
+Benchmark files must end with Bench.php.
+
 Run benchmarks from specific file:
 
 ```
