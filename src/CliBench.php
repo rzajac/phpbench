@@ -117,7 +117,9 @@ class CliBench
         $hasFile = $result->has('file');
 
         if (!($hasDir || $hasFile)) {
-            throw new BenchEx('please provide file or directory to bench');
+            $msg = "PHPBench usage:\n";
+            $msg .= $this->getHelp();
+            throw new BenchEx($msg);
         }
 
         if ($hasDir) {

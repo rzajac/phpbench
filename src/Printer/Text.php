@@ -33,7 +33,7 @@ class Text extends Printer
     {
         $longestName = max(array_map('strlen', array_keys($this->summary)));
 
-        $msg = $this->benchmarkName."\n";
+        $msg = Colors::getColoredString($this->benchmarkName."\n", 'green');
         $format = ' Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
 
         foreach ($this->summary as $name => $summary) {
