@@ -62,7 +62,7 @@ MagicCallBench.php
 
 ## Usage in code:
 
-[Se code](examples/code.php).
+[See code](examples/code.php).
 
 ## Installation
 
