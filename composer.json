@@ -16,7 +16,8 @@
     "phpunit/phpunit": "~4.5",
     "phpdocumentor/phpdocumentor": "~2.8",
     "squizlabs/php_codesniffer": "2.*",
-    "rzajac/phptools": "dev-master"
+    "rzajac/phptools": "dev-master",
+    "corneltek/getoptionkit": "~2"
   },
   "bin": [
     "phpbench"

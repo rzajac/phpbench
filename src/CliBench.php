@@ -17,7 +17,11 @@
  */
 namespace Kicaj\Bench;
 
+use GetOptionKit\OptionCollection;
+use GetOptionKit\OptionParser;
+use GetOptionKit\OptionPrinter\ConsoleOptionPrinter;
 use Kicaj\Bench\Printer\Csv;
+use Kicaj\Bench\Printer\Text;
 use SplFileInfo;
 
 /**
@@ -25,12 +29,11 @@ use SplFileInfo;
  */
 class CliBench
 {
-    /**
-     * CLI arguments.
-     *
-     * @var array
-     */
-    protected $argv = [];
+    /** Output as CSV */
+    const OUTPUT_CSV = 'csv';
+
+    /** Output as TXT */
+    const OUTPUT_TXT = 'txt';
 
     /**
      * File or directory iterator.
@@ -38,6 +41,27 @@ class CliBench
      * @var \Iterator
      */
     protected $it;
+
+    /**
+     * Output format.
+     *
+     * @var string
+     */
+    protected $outputFormat = self::OUTPUT_TXT;
+
+    /**
+     * Command line arguments spec.
+     *
+     * @var OptionCollection
+     */
+    protected $specs;
+
+    /**
+     * Command line arguments parser.
+     * 
+     * @var OptionParser
+     */
+    protected $parser;
 
     /**
      * Constructor.
@@ -48,17 +72,69 @@ class CliBench
      */
     public function __construct(array $argv)
     {
-        $this->argv = $argv;
+        $this->setSpecs();
+        $this->parseArgs($argv);
+    }
 
-        if (count($this->argv) != 2) {
+    /**
+     * Describe command line options.
+     *
+     * @throws \Exception
+     */
+    protected function setSpecs()
+    {
+        $this->specs = new OptionCollection();
+        $this->specs->add('o|output?', 'output format: txt, csv')
+                    ->isa('string')
+                    ->validValues(['csv', 'txt'])
+                    ->defaultValue(self::OUTPUT_TXT);
+
+        $this->specs->add('d|dir?', 'directory')
+                    ->isa('string');
+
+        $this->specs->add('f|file?', 'file')
+                    ->isa('string');
+    }
+
+    /**
+     * Parse and validate command line arguments.
+     *
+     * @param array $argv The command line arguments
+     *
+     * @throws BenchEx
+     * @throws \Exception
+     * @throws \GetOptionKit\Exception\InvalidOptionException
+     * @throws \GetOptionKit\Exception\RequireValueException
+     */
+    protected function parseArgs(array $argv)
+    {
+        $this->parser = new OptionParser($this->specs);
+        $result = $this->parser->parse($argv);
+
+        $this->outputFormat = $result->offsetGet('output')->getValue();
+
+        $hasDir = $result->has('dir');
+        $hasFile = $result->has('file');
+
+        if (!($hasDir || $hasFile)) {
             throw new BenchEx('please provide file or directory to bench');
         }
 
-        if (is_dir($this->argv[1])) {
-            $this->it = new \RecursiveDirectoryIterator($this->argv[1]);
+        if ($hasDir) {
+            $this->it = new \RecursiveDirectoryIterator($result->offsetGet('dir')->getValue());
         } else {
-            $this->it = [new SplFileInfo($this->argv[1])];
+            $this->it = [new SplFileInfo($result->offsetGet('file')->getValue())];
         }
+    }
+
+    /**
+     * Return command line help.
+     *
+     * @return string
+     */
+    public function getHelp()
+    {
+        return (new ConsoleOptionPrinter())->render($this->specs);
     }
 
     /**
@@ -75,6 +151,8 @@ class CliBench
 
     /**
      * Run benchmarks.
+     *
+     * @return string The benchmark results.
      *
      * @throws \Exception
      */
@@ -103,8 +181,17 @@ class CliBench
 
             $bench->run();
 
-            $printer = new Csv($file->getFilename(), $bench->getSummary());
+            switch ($this->outputFormat) {
+                case self::OUTPUT_TXT:
+                    $printer = new Text($file->getFilename(), $bench->getSummary());
+                    break;
 
+                case self::OUTPUT_CSV:
+                    $printer = new Csv($file->getFilename(), $bench->getSummary());
+                    break;
+            }
+
+            /* @noinspection PhpUndefinedVariableInspection */
             $msg .= $printer."\n";
         }
 
