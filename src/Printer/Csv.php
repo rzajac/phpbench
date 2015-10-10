@@ -19,8 +19,6 @@ namespace Kicaj\Bench\Printer;
 
 /**
  * Csv printer.
- *
- * @package Kicaj\Bench\Printer
  */
 class Csv extends Printer
 {
@@ -43,7 +41,7 @@ class Csv extends Printer
             $memoryPerc = number_format($summary['to_least_memory'] * 100, 2);
             $per_sec = $summary['per_sec'] === 'unknown' ? -1 : $summary['per_sec'];
 
-            $msg .= sprintf($format, $this->benchmarkName,$name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
+            $msg .= sprintf($format, $this->benchmarkName, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
             $msg .= "\n";
         }
 

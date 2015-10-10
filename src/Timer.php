@@ -19,8 +19,6 @@ namespace Kicaj\Bench;
 
 /**
  * Simple timer class.
- *
- * @package Kicaj\Bench
  */
 class Timer
 {

@@ -21,8 +21,6 @@ use Kicaj\Tools\Cli\Colors;
 
 /**
  * Text printer.
- *
- * @package Kicaj\Bench\Printer
  */
 class Text extends Printer
 {

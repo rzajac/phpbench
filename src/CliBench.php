@@ -22,8 +22,6 @@ use SplFileInfo;
 
 /**
  * Class for running benchmarks from command line.
- *
- * @package Kicaj\Bench
  */
 class CliBench
 {
@@ -107,7 +105,7 @@ class CliBench
 
             $printer = new Csv($file->getFilename(), $bench->getSummary());
 
-            $msg .= $printer . "\n";
+            $msg .= $printer."\n";
         }
 
         return $msg;

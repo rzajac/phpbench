@@ -19,8 +19,6 @@ namespace Kicaj\Bench;
 
 /**
  * Benchmark exception.
- *
- * @package Kicaj\Bench
  */
 class BenchEx extends \Exception
 {
