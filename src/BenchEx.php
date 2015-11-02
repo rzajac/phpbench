@@ -19,6 +19,8 @@ namespace Kicaj\Bench;
 
 /**
  * Benchmark exception.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 class BenchEx extends \Exception
 {

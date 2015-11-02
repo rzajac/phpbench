@@ -19,6 +19,8 @@ namespace Kicaj\Bench\Printer;
 
 /**
  * Csv printer.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 class Csv extends Printer
 {

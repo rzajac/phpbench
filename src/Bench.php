@@ -21,6 +21,8 @@ use Exception;
 
 /**
  * Benchmarking class.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 class Bench
 {

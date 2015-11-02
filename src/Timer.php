@@ -19,6 +19,8 @@ namespace Kicaj\Bench;
 
 /**
  * Simple timer class.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 class Timer
 {

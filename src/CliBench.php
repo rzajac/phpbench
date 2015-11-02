@@ -26,6 +26,8 @@ use SplFileInfo;
 
 /**
  * Class for running benchmarks from command line.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 class CliBench
 {

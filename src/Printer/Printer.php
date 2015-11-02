@@ -19,6 +19,8 @@ namespace Kicaj\Bench\Printer;
 
 /**
  * Abstract benchmark summary printer.
+ *
+ * @author Rafal Zajac <rzajac@gmail.com>
  */
 abstract class Printer
 {
