@@ -27,11 +27,11 @@ class Csv extends Printer
     /**
      * Parse benchmark summary and return it string.
      *
-     * @return string
+     * @return string[]
      */
-    protected function summaryToStr()
+    public function summaryToStr()
     {
-        $msg = "Name,Case,Execution Percent,Execution Seconds,Memory Percent,Memory Bytes,Operations Per Second\n";
+        $msg = ["Name,Case,Execution Percent,Execution Seconds,Memory Percent,Memory Bytes,Operations Per Second\n"];
 
         $format = '%s,%s,%s,%s,%s,%s,%s';
 
@@ -43,8 +43,7 @@ class Csv extends Printer
             $memoryPerc = number_format($summary['to_least_memory'] * 100, 2);
             $per_sec = $summary['per_sec'] === 'unknown' ? -1 : $summary['per_sec'];
 
-            $msg .= sprintf($format, $this->benchmarkName, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
-            $msg .= "\n";
+            $msg[] = sprintf($format, $this->benchmarkName, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
         }
 
         return $msg;

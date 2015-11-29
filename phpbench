@@ -16,23 +16,30 @@
  * under the License.
  */
 
-use Kicaj\Bench\CliBench;
+date_default_timezone_set('UTC');
 
-foreach (array(__DIR__ . '/../../autoload.php', __DIR__ . '/../vendor/autoload.php', __DIR__ . '/vendor/autoload.php') as $file) {
+use Kicaj\Bench\BenchCommand;
+use Symfony\Component\Console\Application;
+
+// Require composer autoload file
+foreach (
+    [
+        __DIR__ . '/../../autoload.php',
+        __DIR__ . '/../vendor/autoload.php',
+        __DIR__ . '/vendor/autoload.php'
+    ] as $file) {
     if (file_exists($file)) {
-        define('PHPBENCH_COMPOSER_INSTALL', $file);
-
+        /** @noinspection PhpIncludeInspection */
+        $classLoader = require $file;
         break;
     }
 }
 
-unset($file);
+$benchCmd = new BenchCommand();
 
-/** @noinspection PhpIncludeInspection */
-require PHPBENCH_COMPOSER_INSTALL;
+$application = new Application();
+$application->setName('Benchmark runner');
+$application->setVersion('0.6.0');
+$application->add($benchCmd);
+$application->run();
 
-try {
-    echo CliBench::make($argv)->run();
-} catch (\Exception $e) {
-    echo $e->getMessage()."\n";
-}

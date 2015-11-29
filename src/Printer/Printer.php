@@ -53,17 +53,7 @@ abstract class Printer
     /**
      * Parse benchmark summary and return it as a string.
      *
-     * @return string
+     * @return string[]
      */
-    abstract protected function summaryToStr();
-
-    /**
-     * Control how to print the benchmark summary.
-     *
-     * @return string
-     */
-    public function __toString()
-    {
-        return $this->summaryToStr();
-    }
+    abstract public function summaryToStr();
 }

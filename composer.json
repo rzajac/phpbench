@@ -11,7 +11,8 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "corneltek/getoptionkit": "~2"
+    "symfony/console": "~v2.7",
+    "rzajac/phptools": "0.3.*"
   },
   "require-dev": {
   },

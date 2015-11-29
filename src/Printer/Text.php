@@ -29,14 +29,14 @@ class Text extends Printer
     /**
      * Parse benchmark summary and return it string.
      *
-     * @return string
+     * @return string[]
      */
-    protected function summaryToStr()
+    public function summaryToStr()
     {
         $longestName = max(array_map('strlen', array_keys($this->summary)));
 
-        $msg = Colors::getColoredString($this->benchmarkName."\n", 'green');
-        $format = ' Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
+        $msg = [Colors::getColoredString($this->benchmarkName, 'green')];
+        $format = 'Benchmark %s: execution: %s %% (%s sec), memory: %s %% (%s B), speed: %s /sec';
 
         foreach ($this->summary as $name => $summary) {
             $executionActual = number_format($summary['time'], 6);
@@ -50,9 +50,10 @@ class Text extends Printer
 
             $per_sec = $summary['per_sec'] === 'unknown' ? 'unknown' : number_format($summary['per_sec'], 0, '.', ' ');
 
-            $msg .= sprintf($format, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
-            $msg .= "\n";
+            $msg[] = sprintf($format, $name, $executionPerc, $executionActual, $memoryPerc, $memoryActual, $per_sec);
         }
+
+        $msg[] = "\n";
 
         return $msg;
     }
