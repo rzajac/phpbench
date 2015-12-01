@@ -20,6 +20,7 @@ namespace Kicaj\Bench;
 use Iterator;
 use Kicaj\Bench\Printer\Csv;
 use Kicaj\Bench\Printer\Text;
+use Kicaj\Tools\Helper\Str;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -70,6 +71,9 @@ class BenchCommand extends Command
         }
 
         $benchSummary = $this->runBench($iterator, $iterations, $format);
+
+        // $this->getGitVersion($fileOrDir);
+
         $output->writeln($benchSummary);
     }
 
@@ -132,5 +136,43 @@ class BenchCommand extends Command
         }
 
         return $msg;
+    }
+
+    private function getGitVersion($fileOrDir)
+    {
+        $newestVersion = '0.0.0';
+        $currentDir = getcwd();
+        $gitCommand = 'git tag';
+
+        if (!$this->commandExist($gitCommand)) {
+            return $newestVersion;
+        }
+
+        if (Str::endsWith($fileOrDir, 'php')) {
+            $dir = dirname($fileOrDir);
+        } else  {
+            $dir = $fileOrDir;
+        }
+
+        $dir = realpath($dir);
+        chdir($dir);
+
+        exec($gitCommand, $output);
+
+        foreach ($output as $version) {
+            if (version_compare($newestVersion, $version) === -1) {
+                $newestVersion = $version;
+            }
+        }
+
+        chdir($currentDir);
+
+        return $newestVersion;
+    }
+
+    function commandExist($cmd)
+    {
+        $returnVal = shell_exec("which $cmd");
+        return (empty($returnVal) ? false : true);
     }
 }
