@@ -20,6 +20,7 @@ namespace Kicaj\Bench;
 use Iterator;
 use Kicaj\Bench\Printer\Csv;
 use Kicaj\Bench\Printer\Text;
+use Kicaj\Tools\Cli\Interaction;
 use Kicaj\Tools\Helper\Str;
 use SplFileInfo;
 use Symfony\Component\Console\Command\Command;
@@ -144,7 +145,7 @@ class BenchCommand extends Command
         $currentDir = getcwd();
         $gitCommand = 'git tag';
 
-        if (!$this->commandExist($gitCommand)) {
+        if (!Interaction::commandExist('git')) {
             return $newestVersion;
         }
 
@@ -168,11 +169,5 @@ class BenchCommand extends Command
         chdir($currentDir);
 
         return $newestVersion;
-    }
-
-    function commandExist($cmd)
-    {
-        $returnVal = shell_exec("which $cmd");
-        return (empty($returnVal) ? false : true);
     }
 }
