@@ -104,6 +104,7 @@ class Timer
 
         if ($data) {
             $this->timers[$name][$index]['data'] = $data;
+            $this->timers[$name][$index]['data']['time'] = $this->timers[$name][$index]['time_stop'] - $this->timers[$name][$index]['time_start'];
         }
     }
 
