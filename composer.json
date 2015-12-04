@@ -15,6 +15,7 @@
     "rzajac/phptools": "0.3.*"
   },
   "require-dev": {
+    "phpunit/phpunit": "*"
   },
   "bin": [
     "phpbench"

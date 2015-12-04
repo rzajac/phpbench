@@ -51,11 +51,12 @@ class Timer
     /**
      * Set a timer start point.
      *
-     * @param string $name The timer name
+     * @param string $name The timer name.
+     * @param array  $data The associative array with data for benchmarking purposes.
      *
      * @throws BenchEx When timer already started
      */
-    public function start($name)
+    public function start($name, array $data = [])
     {
         if (isset($this->timers[$name])) {
             $index = count($this->timers[$name]);
@@ -71,6 +72,7 @@ class Timer
             'time_stop' => -1,
             'memory_start' => $this->memory_usage(),
             'memory_stop' => -1,
+            'data' => $data
         ];
 
         $this->timers[$name][] = $mark;
@@ -79,11 +81,12 @@ class Timer
     /**
      * Set a timer stop point.
      *
-     * @param string $name The timer name
+     * @param string $name The timer name.
+     * @param array  $data The associative array with data for benchmarking purposes.
      *
      * @throws BenchEx
      */
-    public function stop($name)
+    public function stop($name, array $data = [])
     {
         if (isset($this->timers[$name])) {
             // Last marker
@@ -97,6 +100,10 @@ class Timer
 
         $this->timers[$name][$index]['time_stop'] = (float) microtime(true);
         $this->timers[$name][$index]['memory_stop'] = $this->memory_usage();
+
+        if ($data) {
+            $this->timers[$name][$index]['data'] = $data;
+        }
     }
 
     /**
@@ -156,6 +163,7 @@ class Timer
             'stop' => -1.0,
             'time' => -1.0,
             'memory' => -1,
+            'data' => []
         ];
 
         $time = $memory = 0;
@@ -171,6 +179,8 @@ class Timer
             if ($i === $count - 1) {
                 $timer['stop'] = $t['time_stop'];
             }
+
+            $timer['data'][$i] = $t['data'];
 
             $time += $t['time_stop'] - $t['time_start'];
             $memory += $t['memory_stop'] - $t['memory_start'];
