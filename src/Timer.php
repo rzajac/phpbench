@@ -59,7 +59,8 @@ class Timer
     public function start($name, array $data = [])
     {
         if (isset($this->timers[$name])) {
-            $index = count($this->timers[$name]);
+            // Index of the last timer
+            $index = count($this->timers[$name]) - 1;
             if ($this->timers[$name][$index]['time_stop'] === -1) {
                 throw new BenchEx('timer "'.$name.'" already started');
             }
@@ -89,7 +90,7 @@ class Timer
     public function stop($name, array $data = [])
     {
         if (isset($this->timers[$name])) {
-            // Last marker
+            // Index of the last timer
             $index = count($this->timers[$name]) - 1;
             if ($this->timers[$name][$index]['time_stop'] !== -1) {
                 throw new BenchEx('timer "'.$name.'" already stopped');
@@ -180,7 +181,10 @@ class Timer
                 $timer['stop'] = $t['time_stop'];
             }
 
-            $timer['data'][$i] = $t['data'];
+            if ($t['data']) {
+                // Do not add empty data arrays
+                $timer['data'][$i] = $t['data'];
+            }
 
             $time += $t['time_stop'] - $t['time_start'];
             $memory += $t['memory_stop'] - $t['memory_start'];
