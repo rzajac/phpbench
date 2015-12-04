@@ -41,19 +41,37 @@ class TimerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers ::make
+     * @covers ::__construct
+     */
+    public function test_make()
+    {
+        $timer = Timer::make();
+        $this->assertInstanceOf('\Kicaj\Bench\Timer', $timer);
+    }
+
+    /**
      * @covers ::start
+     * @covers ::stop
+     * @covers ::memory_usage
      */
     public function test_start()
     {
         $this->timer->start('bench1');
         $this->timer->stop('bench1');
 
-        $ret = $this->timer->get('bench1');
-        $this->assertTrue($ret['time'] > 0);
+        $got = $this->timer->get('bench1');
+
+        $this->assertTrue($got['start'] > 0);
+        $this->assertTrue($got['stop'] > 0);
+        $this->assertTrue($got['time'] > 0);
+        $this->assertTrue($got['memory'] > 0);
+        $this->assertSame(1, $got['executions']);
     }
 
     /**
      * @covers ::start
+     * @covers ::stop
      */
     public function test_start_data()
     {
@@ -62,5 +80,55 @@ class TimerTest extends \PHPUnit_Framework_TestCase
 
         $ret = $this->timer->get('bench1');
         $this->assertSame([['key' => 'value']], $ret['data']);
+    }
+
+    /**
+     * @covers ::start
+     * @covers ::stop
+     */
+    public function test_start_twoSameTimers()
+    {
+        // First
+        $this->timer->start('bench1');
+        $this->timer->stop('bench1');
+
+        // Second
+        $this->timer->start('bench1');
+        $this->timer->stop('bench1');
+
+        $got = $this->timer->getAll();
+
+        $this->assertSame(1, count($got));
+        $this->assertArrayHasKey('bench1', $got);
+
+        $got = $got['bench1'];
+        $this->assertTrue($got['start'] > 0);
+        $this->assertTrue($got['stop'] > 0);
+        $this->assertTrue($got['time'] > 0);
+        $this->assertTrue($got['memory'] > 0);
+        $this->assertSame(2, $got['executions']);
+    }
+
+    /**
+     * @expectedException \Kicaj\Bench\BenchEx
+     * @expectedExceptionMessage timer "bench1" already started
+     *
+     * @covers ::start
+     */
+    public function test_start_startTwiceWithoutStopping()
+    {
+        $this->timer->start('bench1');
+        $this->timer->start('bench1');
+    }
+
+    /**
+     * @expectedException \Kicaj\Bench\BenchEx
+     * @expectedExceptionMessage timer "notExisting" does not exist (stop)
+     *
+     * @covers ::stop
+     */
+    public function test_stop_notExisting()
+    {
+        $this->timer->stop('notExisting');
     }
 }
