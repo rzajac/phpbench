@@ -17,8 +17,6 @@
  */
 namespace Kicaj\Bench;
 
-use Exception;
-
 /**
  * Benchmarking class.
  *
@@ -92,14 +90,14 @@ class Bench
      * @param string   $name
      * @param callable $callback
      *
-     * @return Bench
+     * @throws BenchEx
      *
-     * @throws Exception
+     * @return Bench
      */
     public function addBenchmark($name, callable $callback)
     {
         if (isset($this->benchmarks[$name])) {
-            throw new Exception('benchmark "'.$name.'" already exists');
+            throw new BenchEx('benchmark "'.$name.'" already exists');
         }
 
         $this->benchmarks[$name] = $callback;

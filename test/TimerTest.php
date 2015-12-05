@@ -85,6 +85,7 @@ class TimerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::start
      * @covers ::stop
+     * @covers ::get
      */
     public function test_start_twoSameTimers()
     {
@@ -130,5 +131,84 @@ class TimerTest extends \PHPUnit_Framework_TestCase
     public function test_stop_notExisting()
     {
         $this->timer->stop('notExisting');
+    }
+
+    /**
+     * @covers ::stop
+     * @covers ::get
+     */
+    public function test_stop_withData()
+    {
+        $this->timer->start('bench1');
+        $this->timer->stop('bench1', ['key' => 'value']);
+
+        $got = $this->timer->get('bench1');
+
+        $this->assertArrayHasKey('data', $got);
+
+        $data = $got['data'];
+
+        $this->assertSame(1, count($data));
+        $this->assertArrayHasKey('key', $data[0]);
+        $this->assertSame('value', $data[0]['key']);
+        $this->assertTrue($data[0]['time'] > 0);
+    }
+
+    /**
+     * @expectedException \Kicaj\Bench\BenchEx
+     * @expectedExceptionMessage timer "notExisting" does not exist (get)
+     *
+     * @covers ::get
+     */
+    public function test_get_notExisting()
+    {
+        $this->timer->get('notExisting');
+    }
+
+    /**
+     * @covers ::clear
+     * @covers ::getAll
+     */
+    public function test_clear()
+    {
+        $this->timer->start('bench1');
+        $this->timer->stop('bench1');
+        $this->timer->start('bench2');
+        $this->timer->stop('bench2');
+
+        $this->assertSame(2, count($this->timer->getAll()));
+
+        $timer = $this->timer->clear();
+
+        $this->assertSame($this->timer, $timer);
+        $this->assertSame([], $this->timer->getAll());
+    }
+
+    /**
+     * @covers ::delete
+     */
+    public function test_delete()
+    {
+        $this->timer->start('bench1');
+        $this->timer->stop('bench1');
+        $this->timer->start('bench2');
+        $this->timer->stop('bench2');
+
+        $this->assertSame(['bench1', 'bench2'], array_keys($this->timer->getAll()));
+
+        $success = $this->timer->delete('bench1');
+
+        $this->assertTrue($success);
+        $this->assertSame(['bench2'], array_keys($this->timer->getAll()));
+    }
+
+    /**
+     * @covers ::delete
+     */
+    public function test_delete_notExisting()
+    {
+        $success = $this->timer->delete('notExisting');
+
+        $this->assertFalse($success);
     }
 }
